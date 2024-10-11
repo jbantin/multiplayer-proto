@@ -3,7 +3,8 @@ const app = express();
 
 const mapData = require("./multiMap.json");
 const map = mapData.layers[0].data;
-
+const foregroundMap = mapData.layers[1].data;
+console.log(foregroundMap);
 const http = require("http");
 const server = http.createServer(app);
 const { Server } = require("socket.io");
@@ -27,7 +28,7 @@ const PROJECTILE_RADIUS = 5;
 let projectileId = 0;
 io.on("connection", (socket) => {
   console.log("a user connected");
-  io.emit("map", map);
+  io.emit("map", { map, foregroundMap });
   io.emit("updatePlayers", backEndPlayers);
 
   socket.on("mousemove", ({ angle }) => {
