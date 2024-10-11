@@ -3,7 +3,8 @@ const app = express();
 
 const mapData = require("./multiMap.json");
 const map = mapData.layers[0].data;
-const foregroundMap = mapData.layers[1].data;
+const map2 = mapData.layers[1].data;
+const foregroundMap = mapData.layers[2].data;
 console.log(foregroundMap);
 const http = require("http");
 const server = http.createServer(app);
@@ -22,13 +23,13 @@ const backEndPlayers = {};
 const backEndProjectiles = {};
 const GAMEWIDTH = 32 * 64;
 const GAMEHEIGHT = 32 * 64;
-const SPEED = 5;
+const SPEED = 3;
 const RADIUS = 15;
 const PROJECTILE_RADIUS = 5;
 let projectileId = 0;
 io.on("connection", (socket) => {
   console.log("a user connected");
-  io.emit("map", { map, foregroundMap });
+  io.emit("map", { map, map2, foregroundMap });
   io.emit("updatePlayers", backEndPlayers);
 
   socket.on("mousemove", ({ angle }) => {

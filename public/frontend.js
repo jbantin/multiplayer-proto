@@ -155,8 +155,9 @@ const game = new Game(
   playerInputs,
   frontEndProjectiles
 );
-socket.on("map", ({ map, foregroundMap }) => {
+socket.on("map", ({ map, map2, foregroundMap }) => {
   game.map = map;
+  game.map2 = map2;
   game.foregroundMap = foregroundMap;
   // console.log(map);
 });

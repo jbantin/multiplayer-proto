@@ -20,6 +20,7 @@ export default class Game {
     this.tileMap = new Image();
     this.tileMap.src = "./assets/TilesetGround.png";
     this.map = [];
+    this.map2 = [];
     this.foregroundMap = [];
     this.gameWindowWidth = gameWindowWidth;
     this.gameWindowHeight = gameWindowHeight;
@@ -151,6 +152,7 @@ export default class Game {
       this.camera.update(this.frontEndPlayers[this.socket.id]);
 
     this.background(this.map);
+    this.background(this.map2);
 
     for (const id in this.frontEndProjectiles) {
       this.frontEndProjectiles[id].draw(this.camera);
@@ -177,10 +179,13 @@ export default class Game {
     this.ctx.imageSmoothingEnabled = false;
     const mapIndexStart =
       Math.floor(this.camera.x / 64) + Math.floor(this.camera.y / 64) * 32;
-    console.log(mapIndexStart);
+
     for (let y = 0; y < 14; y++) {
       for (let x = 0; x < 21; x++) {
         let tile = map[x + y * 32 + mapIndexStart] - 1;
+        if (tile === -1) {
+          continue;
+        }
         this.ctx.drawImage(
           this.tileMap,
 

@@ -23,7 +23,7 @@ export default class Player {
     this.color = color;
     this.x = x;
     this.y = y;
-    this.speed = 6;
+    this.speed = 3;
     this.radius = radius;
     this.username = username;
     this.health = health;
