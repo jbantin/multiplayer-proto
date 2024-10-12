@@ -5,7 +5,10 @@ const mapData = require("./multiMap.json");
 const map = mapData.layers[0].data;
 const map2 = mapData.layers[1].data;
 const foregroundMap = mapData.layers[2].data;
-console.log(foregroundMap);
+const obstacles = setObstacles(mapData.layers[3].data);
+const obstacleWidth = 64;
+const obstacleHeight = 64;
+console.log(obstacles);
 const http = require("http");
 const server = http.createServer(app);
 const { Server } = require("socket.io");
@@ -25,7 +28,7 @@ const GAMEWIDTH = 32 * 64;
 const GAMEHEIGHT = 32 * 64;
 const SPEED = 3;
 const RADIUS = 15;
-const PROJECTILE_RADIUS = 5;
+const PROJECTILE_RADIUS = 4;
 let projectileId = 0;
 io.on("connection", (socket) => {
   console.log("a user connected");
@@ -51,9 +54,16 @@ io.on("connection", (socket) => {
     };
   });
   socket.on("initGame", ({ username, devicePixelRatio }) => {
+    let x = 0;
+    let y = 0;
+    do {
+      x = (GAMEWIDTH - 256) * Math.random() + 128;
+      y = (GAMEHEIGHT - 256) * Math.random() + 128;
+    } while (obstacleCollision(x - 16, y - 32, 32, 64));
+
     backEndPlayers[socket.id] = {
-      x: GAMEWIDTH * Math.random(),
-      y: GAMEHEIGHT * Math.random(),
+      x,
+      y,
       color: `hsl(${255 * Math.random()},100%,50%)`,
       sequenceNumber: 0,
       score: 0,
@@ -78,23 +88,39 @@ io.on("connection", (socket) => {
     switch (keycode) {
       case "KeyA":
         backEndPlayer.x -= SPEED;
-        if (backEndPlayer.x - backEndPlayer.radius < 0)
-          backEndPlayer.x = backEndPlayer.radius;
+        if (backEndPlayer.x - backEndPlayer.radius < 64)
+          backEndPlayer.x = backEndPlayer.radius + 64;
+        if (
+          obstacleCollision(backEndPlayer.x - 16, backEndPlayer.y - 32, 32, 64)
+        )
+          backEndPlayer.x += SPEED;
         break;
       case "KeyW":
         backEndPlayer.y -= SPEED;
-        if (backEndPlayer.y - backEndPlayer.radius < 0)
-          backEndPlayer.y = backEndPlayer.radius;
+        if (backEndPlayer.y - backEndPlayer.radius < 96)
+          backEndPlayer.y = backEndPlayer.radius + 96;
+        if (
+          obstacleCollision(backEndPlayer.x - 16, backEndPlayer.y - 32, 32, 64)
+        )
+          backEndPlayer.y += SPEED;
         break;
       case "KeyS":
         backEndPlayer.y += SPEED;
-        if (backEndPlayer.y + backEndPlayer.radius > GAMEHEIGHT)
-          backEndPlayer.y = GAMEHEIGHT - backEndPlayer.radius;
+        if (backEndPlayer.y + backEndPlayer.radius > GAMEHEIGHT - 64)
+          backEndPlayer.y = GAMEHEIGHT - backEndPlayer.radius - 64;
+        if (
+          obstacleCollision(backEndPlayer.x - 16, backEndPlayer.y - 32, 32, 64)
+        )
+          backEndPlayer.y -= SPEED;
         break;
       case "KeyD":
         backEndPlayer.x += SPEED;
-        if (backEndPlayer.x + backEndPlayer.radius > GAMEWIDTH)
-          backEndPlayer.x = GAMEWIDTH - backEndPlayer.radius;
+        if (backEndPlayer.x + backEndPlayer.radius > GAMEWIDTH - 64)
+          backEndPlayer.x = GAMEWIDTH - backEndPlayer.radius - 64;
+        if (
+          obstacleCollision(backEndPlayer.x - 16, backEndPlayer.y - 32, 32, 64)
+        )
+          backEndPlayer.x -= SPEED;
         break;
     }
   });
@@ -105,7 +131,17 @@ setInterval(() => {
   for (const id in backEndProjectiles) {
     backEndProjectiles[id].x += backEndProjectiles[id].velocity.x;
     backEndProjectiles[id].y += backEndProjectiles[id].velocity.y;
-
+    if (
+      obstacleCollision(
+        backEndProjectiles[id].x,
+        backEndProjectiles[id].y,
+        PROJECTILE_RADIUS * 2,
+        PROJECTILE_RADIUS * 2
+      )
+    ) {
+      delete backEndProjectiles[id];
+      continue;
+    }
     if (
       backEndProjectiles[id].x + PROJECTILE_RADIUS < 0 ||
       backEndProjectiles[id].x - PROJECTILE_RADIUS > GAMEWIDTH ||
@@ -130,7 +166,7 @@ setInterval(() => {
       ) {
         backEndPlayers[playerId].health -= 20;
         if (backEndPlayers[playerId].health <= 0) {
-          delete backEndPlayers[playerId];
+          resetPlayer(backEndPlayers[playerId]);
           if (backEndPlayers[backEndProjectiles[id].playerId])
             backEndPlayers[backEndProjectiles[id].playerId].score += 1;
         }
@@ -145,3 +181,42 @@ setInterval(() => {
 server.listen(port, () => {
   console.log(`backend app listen on port ${port}`);
 });
+function setObstacles(map) {
+  let obstacles = [];
+  for (let i = 0; i < 32 * 32; i++) {
+    if (map[i] !== 0) {
+      obstacles.push({
+        x: Math.floor((i % 32) * 64),
+        y: Math.floor(i / 32) * 64,
+      });
+    }
+  }
+  return obstacles;
+}
+function obstacleCollision(x, y, width, height) {
+  for (let i = 0; i < obstacles.length; i++) {
+    const o = obstacles[i];
+
+    if (
+      x < o.x + obstacleWidth &&
+      x + width > o.x &&
+      y < o.y + obstacleHeight &&
+      y + height > o.y
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+function resetPlayer(player) {
+  let x = 0;
+  let y = 0;
+  do {
+    x = (GAMEWIDTH - 100) * Math.random() + 50;
+    y = (GAMEHEIGHT - 200) * Math.random() + 100;
+  } while (obstacleCollision(x - 16, y - 32, 32, 64));
+  player.x = x;
+  player.y = y;
+  player.health = 100;
+  console.log("huhu");
+}

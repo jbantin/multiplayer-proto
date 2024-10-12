@@ -47,14 +47,14 @@ export default class Player {
     this.ctx.fillStyle = "red";
     this.ctx.fillRect(
       this.x - camera.x - this.width / 2,
-      this.y - camera.y - this.height / 2 - 19,
+      this.y - camera.y - this.height / 2 - 14,
       (this.health * this.width) / 100,
       6
     );
     this.ctx.strokeStyle = this.color;
     this.ctx.strokeRect(
       this.x - camera.x - this.width / 2 - 1,
-      this.y - camera.y - this.height / 2 - 20,
+      this.y - camera.y - this.height / 2 - 15,
       this.width + 1,
       8
     );
