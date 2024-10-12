@@ -58,7 +58,7 @@ export default class Player {
       this.width + 1,
       8
     );
-    this.ctx.font = "12px";
+    this.ctx.font = "16px adrip";
     this.ctx.fillStyle = "white";
     this.ctx.fillText(
       this.username,
