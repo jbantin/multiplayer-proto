@@ -26,6 +26,7 @@ export default class Game {
     this.gameWindowHeight = gameWindowHeight;
     this.frontEndPlayers = frontEndPlayers;
     this.frontEndProjectiles = frontEndProjectiles;
+    this.particles = [];
     this.camera = new Camera(
       this.gameWindowWidth,
       this.gameWindowHeight,
@@ -171,9 +172,20 @@ export default class Game {
       }
       this.frontEndPlayers[id].draw(this.camera);
     }
+    this.particlesHandler();
     this.background(this.foregroundMap);
 
     this.animationFrameId = requestAnimationFrame(this.update.bind(this));
+  }
+  particlesHandler() {
+    for (let i = this.particles.length - 1; i >= 0; i--) {
+      const particle = this.particles[i];
+      if (particle.opacity <= 0) {
+        this.particles.splice(i, 1);
+      } else {
+        particle.update(this.camera);
+      }
+    }
   }
   background(map) {
     this.ctx.imageSmoothingEnabled = false;

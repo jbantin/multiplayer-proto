@@ -1,6 +1,7 @@
 import Game from "./Game.js";
 import Player from "./Player.js";
 import Projectile from "./Projectile.js";
+import Particle from "./Particle.js";
 
 const canvas = document.querySelector("#myCanvas");
 const ctx = canvas.getContext("2d");
@@ -129,6 +130,26 @@ socket.on("updatePlayers", (backEndPlayers) => {
 
       delete frontEndPlayers[id];
     }
+  }
+});
+
+socket.on("projectileHit", ({ hitPosition, velocity }) => {
+  console.log("hit", hitPosition, velocity);
+  for (let i = 0; i < 40; i++) {
+    const particle = new Particle({
+      x: hitPosition.x,
+      y: hitPosition.y,
+      radius: 3,
+      color: "darkred",
+      velocity: {
+        x: ((Math.random() - 0.5) * 2) + (velocity.x *0.05),
+        y: ((Math.random() - 0.5) * 2) + (velocity.y *0.05),
+      },
+      ctx: ctx,
+      fades: true,
+      opacity: Math.random() + 0.5,
+    });
+    game.particles.push(particle);
   }
 });
 

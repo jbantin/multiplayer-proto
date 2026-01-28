@@ -170,6 +170,16 @@ setInterval(() => {
           if (backEndPlayers[backEndProjectiles[id].playerId])
             backEndPlayers[backEndProjectiles[id].playerId].score += 1;
         }
+        io.emit("projectileHit", {
+          hitPosition: {
+            x: backEndProjectiles[id].x,
+            y: backEndProjectiles[id].y,
+          },
+          velocity: {
+            x: backEndProjectiles[id].velocity.x,
+            y: backEndProjectiles[id].velocity.y,
+          }
+        })
         delete backEndProjectiles[id];
         break;
       }
