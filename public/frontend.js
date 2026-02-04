@@ -142,8 +142,8 @@ socket.on("projectileHit", ({ hitPosition, velocity }) => {
       radius: 3,
       color: "darkred",
       velocity: {
-        x: ((Math.random() - 0.5) * 2) + (velocity.x *0.05),
-        y: ((Math.random() - 0.5) * 2) + (velocity.y *0.05),
+        x: ((Math.random() - 0.5) * 2) + (velocity.x *0.15),
+        y: ((Math.random() - 0.5) * 2) + (velocity.y *0.15),
       },
       ctx: ctx,
       fades: true,
