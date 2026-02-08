@@ -24,6 +24,19 @@ app.get("/", (req, res) => {
 
 const backEndPlayers = {};
 const backEndProjectiles = {};
+
+const backEndEnemies = {};
+// Initialize one enemy on startup
+let enemyId = 0;
+backEndEnemies[enemyId] = {
+  x: 500,  // or random position like players
+  y: 500,
+  color: 'red',
+  health: 100,
+  radius: 15,
+  velocity: { x: 0, y: 10 },
+};
+
 const GAMEWIDTH = 32 * 64;
 const GAMEHEIGHT = 32 * 64;
 const SPEED = 3;
@@ -34,7 +47,7 @@ io.on("connection", (socket) => {
   console.log("a user connected");
   io.emit("map", { map, map2, foregroundMap });
   io.emit("updatePlayers", backEndPlayers);
-
+  
   socket.on("mousemove", ({ angle }) => {
     backEndPlayers[socket.id].angle = angle;
   });
@@ -127,6 +140,15 @@ io.on("connection", (socket) => {
 });
 //backend ticker
 setInterval(() => {
+  //update enemy position
+  for (const enemyId in backEndEnemies) {
+    const enemy = backEndEnemies[enemyId];
+    enemy.x += enemy.velocity.x;
+    enemy.y += enemy.velocity.y;
+    if (enemy.y + enemy.radius >= GAMEHEIGHT - 64 || enemy.y - enemy.radius <= 64) {
+      enemy.velocity.y = -enemy.velocity.y;
+    }
+  }
   //update projectile positions
   for (const id in backEndProjectiles) {
     backEndProjectiles[id].x += backEndProjectiles[id].velocity.x;
@@ -187,6 +209,7 @@ setInterval(() => {
   }
   io.emit("updateProjectiles", backEndProjectiles);
   io.emit("updatePlayers", backEndPlayers);
+  io.emit("updateEnemies", backEndEnemies);
 }, 15);
 server.listen(port, () => {
   console.log(`backend app listen on port ${port}`);

@@ -2,6 +2,7 @@ import Game from "./Game.js";
 import Player from "./Player.js";
 import Projectile from "./Projectile.js";
 import Particle from "./Particle.js";
+import Enemy from "./Enemy.js";
 
 const canvas = document.querySelector("#myCanvas");
 const ctx = canvas.getContext("2d");
@@ -22,7 +23,32 @@ socket.on("connect", () => {
     devicePixelRatio,
   });
 });
-
+socket.on("updateEnemies", (backEndEnemies) => {
+  for (const id in backEndEnemies) {
+    const backEndEnemy = backEndEnemies[id];
+    if (!game.enemies[id]) {
+      game.enemies[id] = new Enemy({
+        x: backEndEnemy.x,
+        y: backEndEnemy.y,
+        radius: backEndEnemy.radius,
+        color: "red",
+        velocity: backEndEnemy.velocity,
+        ctx,
+      });
+    } else {
+      // Update position using server data
+      game.enemies[id].x = backEndEnemy.x;
+      game.enemies[id].y = backEndEnemy.y;
+      game.enemies[id].velocity = backEndEnemy.velocity;
+    }
+  }
+  // Remove enemies that no longer exist on the server
+  for (const id in game.enemies) {
+    if (!backEndEnemies[id]) {
+      delete game.enemies[id];
+    }
+  }
+});
 socket.on("updateProjectiles", (backEndProjectiles) => {
   for (const id in backEndProjectiles) {
     const backEndProjectile = backEndProjectiles[id];

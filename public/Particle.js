@@ -26,6 +26,8 @@ export default class Particle {
     this.draw(camera);
     this.x = this.x + this.velocity.x;
     this.y = this.y + this.velocity.y;
-    if (this.fades) this.opacity -= 0.015;
+    this.velocity.x *= 0.98;
+    this.velocity.y *= 0.98;
+    if (this.fades) this.opacity -= 0.0050;
     }
 }

@@ -27,6 +27,7 @@ export default class Game {
     this.frontEndPlayers = frontEndPlayers;
     this.frontEndProjectiles = frontEndProjectiles;
     this.particles = [];
+    this.enemies = {};
     this.camera = new Camera(
       this.gameWindowWidth,
       this.gameWindowHeight,
@@ -173,9 +174,21 @@ export default class Game {
       this.frontEndPlayers[id].draw(this.camera);
     }
     this.particlesHandler();
+    this.enemiesHandler();
     this.background(this.foregroundMap);
 
     this.animationFrameId = requestAnimationFrame(this.update.bind(this));
+  }
+  enemiesHandler() {
+    for (const id in this.enemies) {
+      const enemy = this.enemies[id];
+      if (enemy.health <= 0) {
+        delete this.enemies[id];
+      } else {
+        console.log(enemy.y);
+        enemy.update(this.camera);
+      }
+    }
   }
   particlesHandler() {
     for (let i = this.particles.length - 1; i >= 0; i--) {
