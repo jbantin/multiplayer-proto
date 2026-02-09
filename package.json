@@ -6,14 +6,20 @@
   },
   "name": "canvasmaptest",
   "version": "1.0.0",
-  "main": "backend.js",
- 
-  "devDependencies": {},
+  "main": "dist/backend.js",
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.2.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  },
   "scripts": {
+    "build": "tsc",
+    "dev": "nodemon --exec ts-node backend.ts",
+    "start": "node dist/backend.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "description": ""
-  
 }
