@@ -116,6 +116,14 @@ export default class Game {
     usernameForm.addEventListener("submit", (event: Event) => {
       event.preventDefault();
       usernameForm.style.display = "none";
+      
+      // Show the canvas and leaderboard
+      this.canvas.style.display = "block";
+      const leaderboard = document.querySelector(".main-div") as HTMLElement;
+      if (leaderboard) {
+        leaderboard.style.display = "block";
+      }
+      
       socket.emit("initGame", {
         username: usernameInput.value,
         devicePixelRatio,

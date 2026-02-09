@@ -12,6 +12,7 @@
     "@types/express": "^5.0.6",
     "@types/node": "^25.2.2",
     "@types/socket.io-client": "^1.4.36",
+    "concurrently": "^9.2.1",
     "esbuild": "^0.27.3",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
@@ -22,9 +23,9 @@
     "build": "npm run build:backend && npm run build:frontend",
     "dev:backend": "nodemon --exec ts-node backend.ts",
     "dev:frontend": "esbuild public/frontend.ts --bundle --outfile=public/dist/bundle.js --sourcemap --watch",
-    "dev": "npm run dev:backend",
     "start": "node dist/backend.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\""
   },
   "author": "",
   "license": "ISC",
