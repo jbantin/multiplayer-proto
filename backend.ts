@@ -28,7 +28,6 @@ const foregroundMap = mapData.layers[2].data;
 const obstacles: Obstacle[] = setObstacles(mapData.layers[3].data);
 const obstacleWidth = 64;
 const obstacleHeight = 64;
-console.log(obstacles);
 
 // Constants
 const port = 3000;
@@ -294,5 +293,4 @@ function resetPlayer(player: Player): void {
   player.x = x;
   player.y = y;
   player.health = 100;
-  console.log("huhu");
 }

@@ -2,7 +2,8 @@
   "dependencies": {
     "express": "^4.21.0",
     "nodemon": "^3.1.7",
-    "socket.io": "^4.8.0"
+    "socket.io": "^4.8.0",
+    "socket.io-client": "^4.8.3"
   },
   "name": "canvasmaptest",
   "version": "1.0.0",
@@ -10,12 +11,18 @@
   "devDependencies": {
     "@types/express": "^5.0.6",
     "@types/node": "^25.2.2",
+    "@types/socket.io-client": "^1.4.36",
+    "esbuild": "^0.27.3",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   },
   "scripts": {
-    "build": "tsc",
-    "dev": "nodemon --exec ts-node backend.ts",
+    "build:backend": "tsc",
+    "build:frontend": "esbuild public/frontend.ts --bundle --outfile=public/dist/bundle.js --sourcemap",
+    "build": "npm run build:backend && npm run build:frontend",
+    "dev:backend": "nodemon --exec ts-node backend.ts",
+    "dev:frontend": "esbuild public/frontend.ts --bundle --outfile=public/dist/bundle.js --sourcemap --watch",
+    "dev": "npm run dev:backend",
     "start": "node dist/backend.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

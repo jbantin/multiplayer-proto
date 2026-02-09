@@ -55,7 +55,6 @@ const foregroundMap = multiMap_json_1.default.layers[2].data;
 const obstacles = setObstacles(multiMap_json_1.default.layers[3].data);
 const obstacleWidth = 64;
 const obstacleHeight = 64;
-console.log(obstacles);
 // Constants
 const port = 3000;
 const GAMEWIDTH = 32 * 64;
@@ -277,6 +276,5 @@ function resetPlayer(player) {
     player.x = x;
     player.y = y;
     player.health = 100;
-    console.log("huhu");
 }
 //# sourceMappingURL=backend.js.map

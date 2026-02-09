@@ -1,4 +1,27 @@
-export default class Player {
+import type { CameraInterface, PlayerInterface, PlayerConstructorParams, AnimationFrame } from "./types";
+
+export default class Player implements PlayerInterface {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  ctx: CanvasRenderingContext2D;
+  canvas: HTMLCanvasElement;
+  gameWidth: number;
+  gameHeight: number;
+  color: string;
+  speed: number;
+  radius: number;
+  username: string;
+  health: number;
+  img: HTMLImageElement;
+  frames: AnimationFrame[];
+  delay: number;
+  delayCount: number;
+  frameCount: number;
+  angle: number;
+  target?: { x: number; y: number };
+
   constructor({
     canvas,
     ctx,
@@ -11,9 +34,7 @@ export default class Player {
     username,
     radius,
     health,
-  }) {
-    // this.vx = 0;
-    // this.vy = 0;
+  }: PlayerConstructorParams) {
     this.width = 40;
     this.height = 40;
     this.ctx = ctx;
@@ -23,7 +44,7 @@ export default class Player {
     this.color = color;
     this.x = x;
     this.y = y;
-    this.speed = 3;
+    this.speed = speed || 3;
     this.radius = radius;
     this.username = username;
     this.health = health;
@@ -43,7 +64,7 @@ export default class Player {
     this.angle = 0;
   }
 
-  draw(camera) {
+  draw(camera: CameraInterface): void {
     this.ctx.fillStyle = "red";
     this.ctx.fillRect(
       this.x - camera.x - this.width / 2,
@@ -74,7 +95,7 @@ export default class Player {
     }
     this.ctx.imageSmoothingEnabled = false;
 
-    //direction left or right
+    // Direction left or right
     if (this.angle < Math.PI / 2 && this.angle > -Math.PI / 2) {
       this.ctx.drawImage(
         this.img,
