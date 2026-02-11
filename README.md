@@ -1,6 +1,6 @@
 # Multiplayer Prototype
 
-A real-time multiplayer top-down shooter game built with Node.js, Socket.IO, and HTML5 Canvas.
+A real-time multiplayer top-down shooter game built with TypeScript, Node.js, Socket.IO, and HTML5 Canvas.
 
 ## Overview
 
@@ -9,13 +9,14 @@ This is a browser-based multiplayer game featuring authoritative server architec
 ## Technology Stack
 
 ### Backend
+- **TypeScript** - Type-safe development
 - **Express.js** - HTTP server
 - **Socket.IO** - Real-time bidirectional communication
 - **Node.js** - Runtime environment
 
 ### Frontend
 - **HTML5 Canvas** - Rendering engine
-- **Vanilla JavaScript** - ES6 modules
+- **TypeScript** - Compiled to JavaScript with esbuild
 - **Socket.IO Client** - Server communication
 
 ## Getting Started
@@ -26,13 +27,108 @@ This is a browser-based multiplayer game featuring authoritative server architec
 npm install
 ```
 
-### Running the Server
+### Building the Project
+
+Build both backend and frontend:
 
 ```bash
-node backend.js
+npm run build
+```
+
+Or build separately:
+
+```bash
+# Backend only (TypeScript to JavaScript)
+npm run build:backend
+
+# Frontend only (Bundle with esbuild)
+npm run build:frontend
+```
+
+### Running the Server
+
+#### Development Mode
+
+Run with auto-restart on file changes:
+
+```bash
+npm run dev
+```
+
+This runs both backend (with nodemon) and frontend (with esbuild watch) concurrently.
+
+Or run separately:
+
+```bash
+# Backend only (with nodemon)
+npm run dev:backend
+
+# Frontend only (with esbuild watch)
+npm run dev:frontend
+```
+
+#### Production Mode
+
+First build the project, then start:
+
+```bash
+npm run build
+npm start
 ```
 
 The server will start on `http://localhost:3000`
+
+#### Production with PM2 (Recommended for Servers)
+
+PM2 is a process manager that keeps your application running and provides automatic restarts.
+
+**First-time setup:**
+
+```bash
+# Build the project
+npm run build
+
+# Start with PM2
+pm2 start dist/backend.js --name "multiplayer-proto"
+
+# Save the PM2 process list
+pm2 save
+
+# (Optional) Setup PM2 to start on system boot
+pm2 startup
+```
+
+**Managing the server with PM2:**
+
+```bash
+# View status
+pm2 status
+
+# View real-time logs
+pm2 logs multiplayer-proto
+
+# View last 100 lines of logs
+pm2 logs multiplayer-proto --lines 100
+
+# Stop the server
+pm2 stop multiplayer-proto
+
+# Restart the server (e.g., after code changes)
+pm2 restart multiplayer-proto
+
+# Remove from PM2
+pm2 delete multiplayer-proto
+
+# Monitor resources (CPU, memory)
+pm2 monit
+```
+
+**After updating code:**
+
+```bash
+# Rebuild and restart
+npm run build && pm2 restart multiplayer-proto
+```
 
 ### Starting the Game
 
@@ -74,22 +170,30 @@ The server will start on `http://localhost:3000`
 
 ```
 multiplayer-proto/
-├── backend.js              # Server-side game logic
-├── package.json            # Dependencies
+├── backend.ts              # Server-side game logic (TypeScript)
+├── types.ts                # Shared TypeScript types
+├── package.json            # Dependencies and scripts
+├── tsconfig.json           # TypeScript backend config
+├── tsconfig.frontend.json  # TypeScript frontend config
 ├── multiMap.json           # Tiled map data
+├── dist/                   # Compiled JavaScript output
+│   ├── backend.js          # Compiled server code
+│   └── types.js            # Compiled type definitions
 ├── public/
 │   ├── index.html          # Game UI
 │   ├── style.css           # Styles
-│   ├── frontend.js         # Client-side networking
+│   ├── frontend.ts         # Client-side networking (TypeScript)
 │   ├── Game.js             # Main game loop
 │   ├── Player.js           # Player rendering
 │   ├── Projectile.js       # Projectile rendering
 │   ├── Camera.js           # Viewport management
+│   ├── dist/
+│   │   └── bundle.js       # Bundled frontend code
 │   └── assets/             # Game assets
 └── [Tiled map files]       # .tmx, .tsx, .png
 ```
 
-### Server Architecture (backend.js)
+### Server Architecture (backend.ts)
 
 The server runs an authoritative game loop at ~66 FPS (15ms tick rate):
 
@@ -100,9 +204,11 @@ The server runs an authoritative game loop at ~66 FPS (15ms tick rate):
 5. **State Broadcasting**: Sends game state to all clients
 
 Key features:
+- Written in TypeScript for type safety
 - Sequence numbers for client-side prediction reconciliation
 - Obstacle collision system using bounding box detection
 - Random spawn positioning with collision avoidance
+- Enemy AI system (initial implementation)
 
 ### Client Architecture
 
@@ -187,21 +293,50 @@ The game uses Tiled Map Editor for level design:
 
 ## Development
 
-### Using Nodemon (Development Mode)
+### Development Workflow
 
 ```bash
-npx nodemon backend.js
+# Run in development mode with auto-reload
+npm run dev
 ```
+
+This will:
+- Start the backend with nodemon (auto-restarts on .ts file changes)
+- Watch and rebuild the frontend bundle on changes
+
+### Building for Production
+
+```bash
+# Build everything
+npm run build
+
+# Or build separately
+npm run build:backend   # Compile TypeScript
+npm run build:frontend  # Bundle frontend with esbuild
+```
+
+### TypeScript Configuration
+
+- **tsconfig.json** - Backend configuration
+- **tsconfig.frontend.json** - Frontend configuration (ES6 modules)
+
+### Deployment
+
+1. Build the project: `npm run build`
+2. Start with PM2: `pm2 start dist/backend.js --name "multiplayer-proto"`
+3. Save PM2 config: `pm2 save`
+4. Setup auto-start: `pm2 startup`
 
 ### Map Editing
 
 1. Open `multi.tmx` in Tiled Map Editor
 2. Edit layers and tiles
 3. Export as JSON to `multiMap.json`
+4. Rebuild and restart the server
 
 ## Technical Details
 
-### Server Constants (backend.js)
+### Server Constants (backend.ts)
 ```javascript
 GAMEWIDTH = 32 * 64      // 2048 pixels
 GAMEHEIGHT = 32 * 64     // 2048 pixels
