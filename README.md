@@ -89,7 +89,7 @@ PM2 is a process manager that keeps your application running and provides automa
 npm run build
 
 # Start with PM2
-pm2 start dist/backend.js --name "multiplayer-proto"
+pm2 start dist/server/server.js --name "multiplayer-proto"
 
 # Save the PM2 process list
 pm2 save
@@ -130,6 +130,8 @@ pm2 monit
 npm run build && pm2 restart multiplayer-proto
 ```
 
+**Note**: The entry point has been changed to `dist/server/server.js` in the latest version.
+
 ### Starting the Game
 
 1. Open your browser and navigate to `http://localhost:3000`
@@ -166,18 +168,58 @@ npm run build && pm2 restart multiplayer-proto
 
 ## Architecture
 
+### Backend Refactoring
+
+The backend was recently refactored from a monolithic `backend.ts` file (297 lines) into a modular architecture with 8 focused modules organized in the `server/` directory. This restructuring provides:
+
+**Benefits:**
+- **Separation of Concerns**: Each module has a single, clear responsibility
+- **Maintainability**: Smaller files (20-130 lines) are easier to understand and modify
+- **Testability**: Isolated functions can be unit tested independently
+- **Scalability**: Easy to add new features without cluttering existing files
+- **Discoverability**: Clear folder structure makes it easy to find specific functionality
+
+**Module Organization:**
+- `config/` - Configuration and constants
+- `state/` - Game state management
+- `handlers/` - Socket.IO event handlers
+- `game/` - Core game logic (loop, collision)
+- `map/` - Map loading and obstacle setup
+- `utils/` - Utility functions
+
 ### File Structure
 
 ```
 multiplayer-proto/
-├── backend.ts              # Server-side game logic (TypeScript)
+├── server/                 # Backend source code (TypeScript)
+│   ├── server.ts           # Main server entry point
+│   ├── config/
+│   │   └── constants.ts    # Game configuration constants
+│   ├── state/
+│   │   └── gameState.ts    # Game state management
+│   ├── handlers/
+│   │   └── socketHandlers.ts  # Socket.IO event handlers
+│   ├── game/
+│   │   ├── gameLoop.ts     # Game tick and update logic
+│   │   └── collision.ts    # Collision detection
+│   ├── map/
+│   │   └── mapLoader.ts    # Map data and obstacle setup
+│   └── utils/
+│       └── playerUtils.ts  # Player utilities
 ├── types.ts                # Shared TypeScript types
 ├── package.json            # Dependencies and scripts
 ├── tsconfig.json           # TypeScript backend config
 ├── tsconfig.frontend.json  # TypeScript frontend config
 ├── multiMap.json           # Tiled map data
 ├── dist/                   # Compiled JavaScript output
-│   ├── backend.js          # Compiled server code
+│   ├── server/             # Compiled server code
+│   │   ├── server.js       # Main entry point
+│   │   ├── config/         # Compiled config
+│   │   ├── state/          # Compiled state
+│   │   ├── handlers/       # Compiled handlers
+│   │   ├── game/           # Compiled game logic
+│   │   ├── map/            # Compiled map loader
+│   │   └── utils/          # Compiled utilities
 │   └── types.js            # Compiled type definitions
 ├── public/
 │   ├── index.html          # Game UI
@@ -193,18 +235,60 @@ multiplayer-proto/
 └── [Tiled map files]       # .tmx, .tsx, .png
 ```
 
-### Server Architecture (backend.ts)
+### Server Architecture
 
-The server runs an authoritative game loop at ~66 FPS (15ms tick rate):
+The backend has been refactored into a modular architecture for better maintainability and scalability. The server runs an authoritative game loop at ~66 FPS (15ms tick rate).
 
-1. **Player Management**: Handles connections, disconnections, and player state
-2. **Input Processing**: Receives and validates player inputs (WASD, mouse, shoot)
-3. **Physics**: Updates player positions and projectile trajectories
-4. **Collision Detection**: Checks projectile hits and obstacle collisions
-5. **State Broadcasting**: Sends game state to all clients
+#### Module Structure
 
-Key features:
-- Written in TypeScript for type safety
+**server/server.ts** - Main entry point
+- Express.js setup and static file serving
+- HTTP server and Socket.IO initialization
+- Coordinates handlers and game loop startup
+
+**server/config/constants.ts** - Game configuration
+- Game world dimensions (GAMEWIDTH, GAMEHEIGHT)
+- Player and projectile settings (SPEED, RADIUS, etc.)
+- Server configuration (PORT)
+- Centralized constants for easy tuning
+
+**server/state/gameState.ts** - Game state management
+- Manages players, projectiles, and enemies collections
+- ID generation for game entities
+- Initial enemy setup
+
+**server/handlers/socketHandlers.ts** - Socket.IO event handlers
+- Connection/disconnection handling
+- Player input processing (movement, shooting, aiming)
+- Game initialization for new players
+- Input validation and player state updates
+
+**server/game/gameLoop.ts** - Game tick logic
+- 15ms update interval (~66 FPS)
+- Enemy movement and AI updates
+- Projectile physics and trajectory
+- Hit detection and damage application
+- State broadcasting to all clients
+
+**server/game/collision.ts** - Collision detection
+- Obstacle collision using bounding box detection
+- Efficient collision checking for players and projectiles
+- Integrates with map obstacle data
+
+**server/map/mapLoader.ts** - Map data management
+- Loads Tiled map JSON data
+- Parses map layers (ground, decorations, foreground, obstacles)
+- Converts obstacle data to collision-ready format
+- Exports map dimensions and obstacle arrays
+
+**server/utils/playerUtils.ts** - Player utilities
+- Player respawn logic with collision-free positioning
+- Random spawn location generation
+- Player state reset (health, position)
+
+#### Key Features
+- Modular architecture with single-responsibility modules
+- Type-safe TypeScript throughout
 - Sequence numbers for client-side prediction reconciliation
 - Obstacle collision system using bounding box detection
 - Random spawn positioning with collision avoidance
@@ -272,7 +356,7 @@ The game uses Tiled Map Editor for level design:
 
 ## Known Issues
 
-- Debug console.log statements present (backend.js:221, Projectile.js:25)
+- Debug console.log statements present in various files
 - Malformed HTML in username input (index.html:19-21)
 - No rate limiting on player actions
 - Missing input validation for edge cases
@@ -323,7 +407,7 @@ npm run build:frontend  # Bundle frontend with esbuild
 ### Deployment
 
 1. Build the project: `npm run build`
-2. Start with PM2: `pm2 start dist/backend.js --name "multiplayer-proto"`
+2. Start with PM2: `pm2 start dist/server/server.js --name "multiplayer-proto"`
 3. Save PM2 config: `pm2 save`
 4. Setup auto-start: `pm2 startup`
 
@@ -336,13 +420,16 @@ npm run build:frontend  # Bundle frontend with esbuild
 
 ## Technical Details
 
-### Server Constants (backend.ts)
+### Server Constants (server/config/constants.ts)
 ```javascript
+PORT = 3000               // Server port
 GAMEWIDTH = 32 * 64      // 2048 pixels
 GAMEHEIGHT = 32 * 64     // 2048 pixels
 SPEED = 3                // Player movement speed
 RADIUS = 15              // Player collision radius
 PROJECTILE_RADIUS = 4    // Projectile size
+OBSTACLE_WIDTH = 64      // Obstacle tile width
+OBSTACLE_HEIGHT = 64     // Obstacle tile height
 ```
 
 ### Client Constants (frontend.js)
