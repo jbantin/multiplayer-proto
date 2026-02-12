@@ -7,7 +7,7 @@
   },
   "name": "canvasmaptest",
   "version": "1.0.0",
-  "main": "dist/backend.js",
+  "main": "dist/server/server.js",
   "devDependencies": {
     "@types/express": "^5.0.6",
     "@types/node": "^25.2.2",
@@ -21,9 +21,9 @@
     "build:backend": "tsc",
     "build:frontend": "esbuild public/frontend.ts --bundle --outfile=public/dist/bundle.js --sourcemap",
     "build": "npm run build:backend && npm run build:frontend",
-    "dev:backend": "nodemon --exec ts-node backend.ts",
+    "dev:backend": "nodemon --exec ts-node server/server.ts",
     "dev:frontend": "esbuild public/frontend.ts --bundle --outfile=public/dist/bundle.js --sourcemap --watch",
-    "start": "node dist/backend.js",
+    "start": "node dist/server/server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\""
   },

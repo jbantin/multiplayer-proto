@@ -21,6 +21,6 @@
     "allowSyntheticDefaultImports": true,
     "sourceMap": true
   },
-  "include": ["*.ts"],
+  "include": ["server/**/*.ts", "types.ts"],
   "exclude": ["node_modules", "dist", "public", "*.tsx"]
 }
