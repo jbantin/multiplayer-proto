@@ -9,6 +9,7 @@ import {
 import { GAMEWIDTH, GAMEHEIGHT, PROJECTILE_RADIUS } from "../config/constants";
 import { obstacleCollision } from "./collision";
 import { resetPlayer } from "../utils/playerUtils";
+import { setTarget, moveEnemyTowardsPlayer } from "../entities/enemyService";
 
 /**
  * Starts the game loop that updates game state at fixed intervals
@@ -21,15 +22,12 @@ export function startGameLoop(
     // Update enemy positions
     for (const enemyIdKey in backEndEnemies) {
       const enemy = backEndEnemies[enemyIdKey];
-      enemy.x += enemy.velocity.x;
-      enemy.y += enemy.velocity.y;
-      
-      // Bounce enemies off vertical boundaries
-      if (enemy.y + enemy.radius >= GAMEHEIGHT - 64 || enemy.y - enemy.radius <= 64) {
-        enemy.velocity.y = -enemy.velocity.y;
+      const targetPlayer = setTarget(enemy, Object.values(backEndPlayers));
+      if (targetPlayer) {
+      moveEnemyTowardsPlayer(enemy, targetPlayer, 0.5);
       }
-    }
-
+    } 
+    
     // Update projectile positions and check collisions
     for (const id in backEndProjectiles) {
       const projectile = backEndProjectiles[id];
