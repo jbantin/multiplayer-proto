@@ -38,6 +38,7 @@ export interface Enemy {
   radius: number;
   velocity: Velocity;
   targetPlayerId: string;
+  targetTimer: number;
 }
 
 // Socket.IO Event Types

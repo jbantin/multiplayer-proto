@@ -17,3 +17,6 @@ export const PROJECTILE_RADIUS = 4;
 // Obstacle Configuration
 export const OBSTACLE_WIDTH = 64;
 export const OBSTACLE_HEIGHT = 64;
+
+// Enemy Configuration
+export const ENEMY_TARGET_RETARGET_INTERVAL = 20;

@@ -21,11 +21,8 @@ export function startGameLoop(
   setInterval(() => {
     // Update enemy positions
     for (const enemyIdKey in backEndEnemies) {
-      const enemy = backEndEnemies[enemyIdKey];
-      const targetPlayer = setTarget(enemy, Object.values(backEndPlayers));
-      if (targetPlayer) {
-      moveEnemyTowardsPlayer(enemy, targetPlayer, 0.5);
-      }
+      const enemy = backEndEnemies[enemyIdKey];      
+      moveEnemyTowardsPlayer(enemy, 1.5);      
     } 
     
     // Update projectile positions and check collisions

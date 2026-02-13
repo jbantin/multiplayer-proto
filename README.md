@@ -166,6 +166,13 @@ npm run build && pm2 restart multiplayer-proto
 - +1 point for eliminating another player
 - Players respawn at random locations upon death
 
+### Enemies
+- **Health**: 100 HP
+- **Radius**: 15 pixels
+- **Color**: Red
+- **AI Behavior**: Enemies automatically target and chase the nearest player
+- **Target Re-evaluation**: Every 20 frames (~300ms)
+
 ## Architecture
 
 ### Backend Refactoring
@@ -185,6 +192,7 @@ The backend was recently refactored from a monolithic `backend.ts` file (297 lin
 - `handlers/` - Socket.IO event handlers
 - `game/` - Core game logic (loop, collision)
 - `map/` - Map loading and obstacle setup
+- `entities/` - Game entity logic (enemy AI)
 - `utils/` - Utility functions
 
 ### File Structure
@@ -204,6 +212,8 @@ multiplayer-proto/
 │   │   └── collision.ts    # Collision detection
 │   ├── map/
 │   │   └── mapLoader.ts    # Map data and obstacle setup
+│   ├── entities/
+│   │   └── enemyService.ts # Enemy AI and targeting
 │   └── utils/
 │       └── playerUtils.ts  # Player utilities
 ├── types.ts                # Shared TypeScript types
@@ -219,6 +229,7 @@ multiplayer-proto/
 │   │   ├── handlers/       # Compiled handlers
 │   │   ├── game/           # Compiled game logic
 │   │   ├── map/            # Compiled map loader
+│   │   ├── entities/       # Compiled enemy AI
 │   │   └── utils/          # Compiled utilities
 │   └── types.js            # Compiled type definitions
 ├── public/
@@ -285,6 +296,12 @@ The backend has been refactored into a modular architecture for better maintaina
 - Player respawn logic with collision-free positioning
 - Random spawn location generation
 - Player state reset (health, position)
+
+**server/entities/enemyService.ts** - Enemy AI logic
+- Enemy targeting system using nearest player calculation
+- Target re-evaluation every 20 frames (ENEMY_TARGET_RETARGET_INTERVAL)
+- Movement logic to chase targeted players
+- Distance-based targeting with Euclidean distance calculation
 
 #### Key Features
 - Modular architecture with single-responsibility modules
@@ -428,6 +445,7 @@ GAMEHEIGHT = 32 * 64     // 2048 pixels
 SPEED = 3                // Player movement speed
 RADIUS = 15              // Player collision radius
 PROJECTILE_RADIUS = 4    // Projectile size
+ENEMY_TARGET_RETARGET_INTERVAL = 20  // Enemy target re-evaluation (frames)
 OBSTACLE_WIDTH = 64      // Obstacle tile width
 OBSTACLE_HEIGHT = 64     // Obstacle tile height
 ```
