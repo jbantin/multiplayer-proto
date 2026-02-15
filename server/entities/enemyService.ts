@@ -1,8 +1,37 @@
 import { Enemy, Player } from "../../types";
 import { ENEMY_TARGET_RETARGET_INTERVAL } from "../config/constants";
-import { backEndPlayers } from "../state/gameState";
+import { obstacleCollision } from "../game/collision";
+import { backEndPlayers, backEndProjectiles } from "../state/gameState";
 
-export function moveEnemyTowardsPlayer(enemy: Enemy, speed: number = 2) {
+
+export function updateEnemy(enemy: Enemy): void {
+  moveEnemyTowardsPlayer(enemy);
+  shootAtPlayer(enemy);
+  
+}
+function shootAtPlayer(enemy: Enemy): void {
+  enemy.shootTimer--;
+  if (!enemy.targetPlayerId || !backEndPlayers[enemy.targetPlayerId ] || enemy.shootTimer > 0) {
+    return; // No target available, exit the function
+  }
+  enemy.shootTimer = 60; // Reset shoot timer to prevent continuous shooting
+  const targetPlayer = backEndPlayers[enemy.targetPlayerId];
+  const dx = targetPlayer.x - enemy.x;
+  const dy = targetPlayer.y - enemy.y;
+  const distance = Math.sqrt(dx * dx + dy * dy);
+  const velocity = {
+    x: (dx / distance) * 8,
+    y: (dy / distance) * 8,
+  };
+  backEndProjectiles[Date.now()] = {
+    x: enemy.x,
+    y: enemy.y,
+    velocity,
+    playerId: "npc",
+    radius: 4,
+    };  
+}
+function moveEnemyTowardsPlayer(enemy: Enemy, speed: number = 2) {
   enemy.targetTimer--;
   if (!enemy.targetPlayerId || !backEndPlayers[enemy.targetPlayerId] || enemy.targetTimer <= 0) {
     setTarget(enemy, backEndPlayers);
@@ -17,8 +46,16 @@ export function moveEnemyTowardsPlayer(enemy: Enemy, speed: number = 2) {
   const dy = backEndPlayers[enemy.targetPlayerId].y - enemy.y;
   const distance = Math.sqrt(dx * dx + dy * dy);
   if (distance > 0) {
-    enemy.x += (dx / distance) * speed;
-    enemy.y += (dy / distance) * speed;
+    const vx = (dx / distance) * speed;
+    const vy = (dy / distance) * speed;
+    enemy.x += vx;
+    if (obstacleCollision(enemy.x - enemy.radius, enemy.y - enemy.radius, enemy.radius * 2, enemy.radius * 2)) {
+      enemy.x -= vx; // Revert X movement if it collides with an obstacle
+    }
+    enemy.y += vy;
+    if (obstacleCollision(enemy.x - enemy.radius, enemy.y - enemy.radius, enemy.radius * 2, enemy.radius * 2)) {
+      enemy.y -= vy; // Revert Y movement if it collides with an obstacle
+    }
   } else {
     // Enemy is already at the player's position, do nothing
   }

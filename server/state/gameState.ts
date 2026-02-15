@@ -2,6 +2,7 @@
 import type { Player, Projectile, Enemy } from "../../types";
 import { ENEMY_TARGET_RETARGET_INTERVAL } from "../config/constants";
 
+
 // Player State
 export const backEndPlayers: Record<string, Player> = {};
 
@@ -39,5 +40,6 @@ backEndEnemies[initialEnemyId] = {
   radius: 15,
   velocity: { x: 0, y: 10 },
   targetPlayerId: "",
-  targetTimer: ENEMY_TARGET_RETARGET_INTERVAL
+  targetTimer: ENEMY_TARGET_RETARGET_INTERVAL,
+  shootTimer: 0,
 };

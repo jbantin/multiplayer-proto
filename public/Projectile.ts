@@ -9,7 +9,7 @@ export default class Projectile implements ProjectileInterface {
   velocity: Velocity;
   ctx: CanvasRenderingContext2D;
 
-  constructor({ x, y, radius, color = "white", velocity, ctx }: ProjectileConstructorParams) {
+  constructor({ x, y, radius, color = "orange", velocity, ctx }: ProjectileConstructorParams) {
     this.x = x;
     this.y = y;
     this.radius = radius;

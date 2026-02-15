@@ -170,8 +170,11 @@ npm run build && pm2 restart multiplayer-proto
 - **Health**: 100 HP
 - **Radius**: 15 pixels
 - **Color**: Red
+- **Movement Speed**: 2 pixels/tick
 - **AI Behavior**: Enemies automatically target and chase the nearest player
 - **Target Re-evaluation**: Every 20 frames (~300ms)
+- **Shooting**: Enemies shoot projectiles at their target every 60 frames (~900ms)
+- **Projectile Damage**: 20 HP (same as player projectiles)
 
 ## Architecture
 
@@ -276,9 +279,9 @@ The backend has been refactored into a modular architecture for better maintaina
 
 **server/game/gameLoop.ts** - Game tick logic
 - 15ms update interval (~66 FPS)
-- Enemy movement and AI updates
+- Enemy movement, AI updates, and shooting behavior
 - Projectile physics and trajectory
-- Hit detection and damage application
+- Hit detection and damage application for both player and enemy projectiles
 - State broadcasting to all clients
 
 **server/game/collision.ts** - Collision detection
@@ -300,8 +303,10 @@ The backend has been refactored into a modular architecture for better maintaina
 **server/entities/enemyService.ts** - Enemy AI logic
 - Enemy targeting system using nearest player calculation
 - Target re-evaluation every 20 frames (ENEMY_TARGET_RETARGET_INTERVAL)
-- Movement logic to chase targeted players
+- Movement logic to chase targeted players (2 pixels/tick)
 - Distance-based targeting with Euclidean distance calculation
+- Shooting system that fires projectiles at target every 60 frames
+- Collision avoidance for enemy movement
 
 #### Key Features
 - Modular architecture with single-responsibility modules
@@ -446,6 +451,7 @@ SPEED = 3                // Player movement speed
 RADIUS = 15              // Player collision radius
 PROJECTILE_RADIUS = 4    // Projectile size
 ENEMY_TARGET_RETARGET_INTERVAL = 20  // Enemy target re-evaluation (frames)
+ENEMY_SHOOT_INTERVAL = 60            // Enemy shooting interval (frames)
 OBSTACLE_WIDTH = 64      // Obstacle tile width
 OBSTACLE_HEIGHT = 64     // Obstacle tile height
 ```

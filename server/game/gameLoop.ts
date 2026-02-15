@@ -9,7 +9,7 @@ import {
 import { GAMEWIDTH, GAMEHEIGHT, PROJECTILE_RADIUS } from "../config/constants";
 import { obstacleCollision } from "./collision";
 import { resetPlayer } from "../utils/playerUtils";
-import { setTarget, moveEnemyTowardsPlayer } from "../entities/enemyService";
+import { updateEnemy } from "../entities/enemyService";
 
 /**
  * Starts the game loop that updates game state at fixed intervals
@@ -22,7 +22,7 @@ export function startGameLoop(
     // Update enemy positions
     for (const enemyIdKey in backEndEnemies) {
       const enemy = backEndEnemies[enemyIdKey];      
-      moveEnemyTowardsPlayer(enemy, 1.5);      
+      updateEnemy(enemy);      
     } 
     
     // Update projectile positions and check collisions

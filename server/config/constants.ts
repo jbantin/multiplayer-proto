@@ -20,3 +20,4 @@ export const OBSTACLE_HEIGHT = 64;
 
 // Enemy Configuration
 export const ENEMY_TARGET_RETARGET_INTERVAL = 20;
+export const ENEMY_SHOOT_INTERVAL = 60;
