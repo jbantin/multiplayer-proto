@@ -13,6 +13,6 @@ export function addEnemy() {
     targetPlayerId: "",
     targetTimer: ENEMY_TARGET_RETARGET_INTERVAL,
     shootTimer: ENEMY_SHOOT_INTERVAL,
-    radius: 15,
+    radius: 24,
   };
 }

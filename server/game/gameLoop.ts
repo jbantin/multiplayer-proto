@@ -29,7 +29,7 @@ export function startGameLoop(
       updateEnemy(enemy);      
     } 
     
-    // Add new enemies with 2-second spawn delay (max 5 enemies)
+    // Add new enemies with spawn delay (max 5 enemies)
     if (Object.keys(backEndEnemies).length < 5) {
       enemySpawnTimer--;
       if (enemySpawnTimer <= 0) {
