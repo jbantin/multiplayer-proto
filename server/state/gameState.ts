@@ -1,6 +1,5 @@
 // Game State Management
 import type { Player, Projectile, Enemy } from "../../types";
-import { ENEMY_TARGET_RETARGET_INTERVAL } from "../config/constants";
 
 
 // Player State
@@ -29,17 +28,3 @@ export function getNextEnemyId(): number {
   enemyIdCounter++;
   return enemyIdCounter;
 }
-
-// Initialize one enemy on startup
-const initialEnemyId = getNextEnemyId();
-backEndEnemies[initialEnemyId] = {
-  x: 500,
-  y: 500,
-  color: "red",
-  health: 100,
-  radius: 15,
-  velocity: { x: 0, y: 10 },
-  targetPlayerId: "",
-  targetTimer: ENEMY_TARGET_RETARGET_INTERVAL,
-  shootTimer: 0,
-};

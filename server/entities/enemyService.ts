@@ -6,14 +6,20 @@ import { backEndPlayers, backEndProjectiles } from "../state/gameState";
 
 export function updateEnemy(enemy: Enemy): void {
   moveEnemyTowardsPlayer(enemy);
-  shootAtPlayer(enemy);
-  
+  shootAtPlayer(enemy);  
 }
+
 function shootAtPlayer(enemy: Enemy): void {
-  enemy.shootTimer--;
-  if (!enemy.targetPlayerId || !backEndPlayers[enemy.targetPlayerId ] || enemy.shootTimer > 0) {
+
+  if (!enemy.targetPlayerId || !backEndPlayers[enemy.targetPlayerId]) {
     return; // No target available, exit the function
   }
+
+  if (enemy.shootTimer > 0) {
+    enemy.shootTimer--; // Decrease shoot timer
+    return; // Not ready to shoot yet
+  }
+  
   enemy.shootTimer = 60; // Reset shoot timer to prevent continuous shooting
   const targetPlayer = backEndPlayers[enemy.targetPlayerId];
   const dx = targetPlayer.x - enemy.x;

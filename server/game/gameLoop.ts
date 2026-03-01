@@ -6,10 +6,14 @@ import {
   backEndProjectiles,
   backEndEnemies,
 } from "../state/gameState";
-import { GAMEWIDTH, GAMEHEIGHT, PROJECTILE_RADIUS } from "../config/constants";
+import { GAMEWIDTH, GAMEHEIGHT, PROJECTILE_RADIUS, ENEMY_SPAWN_INTERVAL, PROJECTILE_DAMAGE } from "../config/constants";
 import { obstacleCollision } from "./collision";
 import { resetPlayer } from "../utils/playerUtils";
 import { updateEnemy } from "../entities/enemyService";
+import { addEnemy } from "../entities/enemiesHandler";
+
+// Enemy spawn timer (starts at 0 to spawn first enemy immediately)
+let enemySpawnTimer = 0;
 
 /**
  * Starts the game loop that updates game state at fixed intervals
@@ -24,6 +28,15 @@ export function startGameLoop(
       const enemy = backEndEnemies[enemyIdKey];      
       updateEnemy(enemy);      
     } 
+    
+    // Add new enemies with 2-second spawn delay (max 5 enemies)
+    if (Object.keys(backEndEnemies).length < 5) {
+      enemySpawnTimer--;
+      if (enemySpawnTimer <= 0) {
+        addEnemy();
+        enemySpawnTimer = ENEMY_SPAWN_INTERVAL; // Reset to ~2 seconds
+      }
+    }
     
     // Update projectile positions and check collisions
     for (const id in backEndProjectiles) {
@@ -69,7 +82,7 @@ export function startGameLoop(
           DISTANCE < PROJECTILE_RADIUS + backEndPlayer.radius &&
           projectile.playerId !== playerId
         ) {
-          backEndPlayer.health -= 20;
+          backEndPlayer.health -= PROJECTILE_DAMAGE;
           
           // Player died
           if (backEndPlayer.health <= 0) {
@@ -94,6 +107,49 @@ export function startGameLoop(
           
           delete backEndProjectiles[id];
           break;
+        }
+      }
+
+      // Check collision with enemies (player projectiles only)
+      if (projectile.playerId !== "npc") {
+        for (const enemyId in backEndEnemies) {
+          const enemy = backEndEnemies[enemyId];
+          
+          const DISTANCE = Math.hypot(
+            projectile.x - enemy.x,
+            projectile.y - enemy.y
+          );
+          
+          // Collision detection: projectile hit an enemy
+          if (DISTANCE < PROJECTILE_RADIUS + enemy.radius) {
+            enemy.health -= PROJECTILE_DAMAGE;
+            
+            // Award score to shooter for hitting enemy
+            const shooter = backEndPlayers[projectile.playerId];
+            if (shooter) {
+              shooter.score += 1;
+            }
+            
+            // Enemy died
+            if (enemy.health <= 0) {
+              delete backEndEnemies[enemyId];
+            }
+            
+            // Emit projectile hit event for visual effects
+            io.emit("projectileHit", {
+              hitPosition: {
+                x: projectile.x,
+                y: projectile.y,
+              },
+              velocity: {
+                x: projectile.velocity.x,
+                y: projectile.velocity.y,
+              },
+            });
+            
+            delete backEndProjectiles[id];
+            break;
+          }
         }
       }
     }

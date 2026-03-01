@@ -21,3 +21,7 @@ export const OBSTACLE_HEIGHT = 64;
 // Enemy Configuration
 export const ENEMY_TARGET_RETARGET_INTERVAL = 20;
 export const ENEMY_SHOOT_INTERVAL = 60;
+export const ENEMY_SPAWN_INTERVAL = 133; // ~2 seconds at 66.6 FPS (2000ms ÷ 15ms)
+
+// Damage Configuration
+export const PROJECTILE_DAMAGE = 20; // Unified damage for all projectiles
